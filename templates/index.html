@@ -1,131 +1,69 @@
 <!DOCTYPE html>
+
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StageFear Breaker — Own the Room</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<title>StageFear Breaker — Auth</title>
 <link rel="stylesheet" href="/static/css/main.css">
 </head>
+
 <body class="auth-page">
 
-<div class="auth-split">
-  <!-- LEFT PANEL -->
-  <div class="auth-hero">
-    <div class="hero-content">
-      <div class="logo-mark">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-          <circle cx="24" cy="24" r="24" fill="var(--accent)"/>
-          <path d="M16 32V20l8-6 8 6v12l-8 4-8-4z" fill="white" opacity="0.2"/>
-          <circle cx="24" cy="21" r="6" fill="white"/>
-          <path d="M14 34c0-5.5 4.5-8 10-8s10 2.5 10 8" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-        </svg>
-        <span>StageFear Breaker</span>
-      </div>
+<div class="auth-container">
 
-      <h1 class="hero-headline">
-        Turn stage<br>
-        fright into<br>
-        <em>stage power.</em>
-      </h1>
+  <!-- TABS -->
 
-      <p class="hero-sub">
-        AI-powered public speaking coach. Practice with real topics,
-        get instant feedback, track your growth.
-      </p>
-
-      <div class="hero-stats">
-        <div class="stat-pill">
-          <span class="stat-num">200+</span>
-          <span class="stat-label">Topics</span>
-        </div>
-        <div class="stat-pill">
-          <span class="stat-num">5</span>
-          <span class="stat-label">Categories</span>
-        </div>
-        <div class="stat-pill">
-          <span class="stat-num">∞</span>
-          <span class="stat-label">Practice</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="hero-visual">
-      <div class="wave-rings">
-        <div class="ring ring-1"></div>
-        <div class="ring ring-2"></div>
-        <div class="ring ring-3"></div>
-        <div class="ring-center">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>
-          </svg>
-        </div>
-      </div>
-    </div>
+  <div class="auth-tabs">
+    <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+    <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
   </div>
 
-  <!-- RIGHT PANEL -->
-  <div class="auth-panel">
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</button>
-        <button class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
-      </div>
+  <!-- LOGIN FORM -->
 
-      <!-- LOGIN FORM -->
-      <form id="login-form" class="auth-form active" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" id="login-username" placeholder="yourname" required autocomplete="username">
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <div class="input-with-toggle">
-            <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password">
-            <button type="button" class="toggle-pw" onclick="togglePw('login-password', this)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <div id="login-error" class="auth-error hidden"></div>
-        <button type="submit" class="btn-primary" id="login-btn">
-          <span>Sign In</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-        <p class="auth-hint">Demo: <code>demo</code> / <code>password123</code></p>
-      </form>
+  <form id="login-form" class="auth-form active">
+    <h2>Sign In</h2>
 
-      <!-- SIGNUP FORM -->
-      <form id="signup-form" class="auth-form" onsubmit="handleSignup(event)">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" id="signup-username" placeholder="yourname" required>
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="signup-email" placeholder="you@example.com" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <div class="input-with-toggle">
-            <input type="password" id="signup-password" placeholder="Min 8 characters" required minlength="8">
-            <button type="button" class="toggle-pw" onclick="togglePw('signup-password', this)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <div id="signup-error" class="auth-error hidden"></div>
-        <button type="submit" class="btn-primary" id="signup-btn">
-          <span>Create Account</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </form>
-    </div>
-  </div>
+```
+<input id="login-username" type="text" placeholder="Username" required>
+<input id="login-password" type="password" placeholder="Password" required>
+
+<div id="login-error" class="auth-error hidden"></div>
+
+<button type="submit" id="login-btn">Sign In</button>
+```
+
+  </form>
+
+  <!-- SIGNUP FORM -->
+
+  <form id="signup-form" class="auth-form">
+    <h2>Create Account</h2>
+
+```
+<input id="signup-username" type="text" placeholder="Username" required>
+<input id="signup-email" type="email" placeholder="Email" required>
+<input id="signup-password" type="password" placeholder="Password" required minlength="8">
+
+<div id="signup-error" class="auth-error hidden"></div>
+
+<button type="submit" id="signup-btn">Create Account</button>
+```
+
+  </form>
+
 </div>
 
+<!-- JS FILE -->
+
 <script src="/static/js/auth.js"></script>
+
+<!-- EVENT BINDING (IMPORTANT) -->
+
+<script>
+document.getElementById("login-form").addEventListener("submit", handleLogin);
+document.getElementById("signup-form").addEventListener("submit", handleSignup);
+</script>
+
 </body>
 </html>

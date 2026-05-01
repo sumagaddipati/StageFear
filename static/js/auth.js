@@ -1,11 +1,6 @@
-/* auth.js — FINAL FIXED VERSION */
+/* auth.js — FINAL WORKING VERSION */
 
 const API = '';
-
-// Redirect if already logged in
-if (localStorage.getItem('sf_token')) {
-window.location.href = '/home';
-}
 
 function switchTab(tab) {
 document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -27,7 +22,7 @@ const username = document.getElementById('login-username').value.trim();
 const password = document.getElementById('login-password').value;
 
 btn.disabled = true;
-btn.textContent = 'Signing in...';
+btn.innerText = 'Signing in...';
 
 try {
 const formData = new FormData();
@@ -40,14 +35,7 @@ const res = await fetch(API + '/api/auth/login', {
   body: formData
 });
 
-const text = await res.text();
-
-let data;
-try {
-  data = JSON.parse(text);
-} catch {
-  throw new Error("Server Error: " + text);
-}
+const data = await res.json();
 
 if (!res.ok) throw new Error(data.detail || 'Login failed');
 
@@ -58,12 +46,12 @@ window.location.href = '/home';
 ```
 
 } catch (err) {
-errEl.textContent = err.message;
+errEl.innerText = err.message;
 errEl.classList.remove('hidden');
 
 ```
 btn.disabled = false;
-btn.textContent = 'Sign In';
+btn.innerText = 'Sign In';
 ```
 
 }
@@ -85,13 +73,13 @@ password: document.getElementById('signup-password').value,
 };
 
 if (payload.password.length < 8) {
-errEl.textContent = 'Password must be at least 8 characters';
+errEl.innerText = 'Password must be at least 8 characters';
 errEl.classList.remove('hidden');
 return;
 }
 
 btn.disabled = true;
-btn.textContent = 'Creating account...';
+btn.innerText = 'Creating account...';
 
 try {
 const res = await fetch(API + '/api/auth/signup', {
@@ -101,14 +89,7 @@ body: JSON.stringify(payload),
 });
 
 ```
-const text = await res.text();
-
-let data;
-try {
-  data = JSON.parse(text);
-} catch {
-  throw new Error("Server Error: " + text);
-}
+const data = await res.json();
 
 if (!res.ok) throw new Error(data.detail || 'Signup failed');
 
@@ -119,12 +100,12 @@ window.location.href = '/home';
 ```
 
 } catch (err) {
-errEl.textContent = err.message;
+errEl.innerText = err.message;
 errEl.classList.remove('hidden');
 
 ```
 btn.disabled = false;
-btn.textContent = 'Create Account';
+btn.innerText = 'Create Account';
 ```
 
 }
@@ -134,25 +115,4 @@ btn.textContent = 'Create Account';
 function togglePw(id) {
 const input = document.getElementById(id);
 input.type = input.type === 'password' ? 'text' : 'password';
-}
-
-// ---------------- THEME ----------------
-function toggleTheme() {
-const html = document.documentElement;
-const isDark = html.getAttribute('data-theme') === 'dark';
-
-html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-localStorage.setItem('sf_theme', isDark ? 'light' : 'dark');
-
-document.getElementById('icon-moon')?.classList.toggle('hidden', !isDark);
-document.getElementById('icon-sun')?.classList.toggle('hidden', isDark);
-}
-
-// Apply saved theme
-const savedTheme = localStorage.getItem('sf_theme') || 'dark';
-document.documentElement.setAttribute('data-theme', savedTheme);
-
-if (savedTheme === 'light') {
-document.getElementById('icon-moon')?.classList.add('hidden');
-document.getElementById('icon-sun')?.classList.remove('hidden');
 }
