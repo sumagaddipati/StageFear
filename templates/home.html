@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StageFear Breaker - Overcome Public Speaking Anxiety</title>
+    <link rel="stylesheet" href="/static/css/home.css">
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-left">
+                <a href="/home" class="app-name-link">
+                    <span class="app-name">StageFear Breaker</span>
+                </a>
+            </div>
+            <div class="navbar-right">
+                <button class="nav-btn nav-primary" onclick="navigateTo('/session')">Start</button>
+                <button class="nav-btn nav-secondary" onclick="navigateTo('/dashboard')">Dashboard</button>
+                <button class="nav-btn nav-logout" onclick="logout()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-container">
+            <!-- Left: Image -->
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&h=600&fit=crop" 
+                     alt="Confident speaker on stage" 
+                     loading="lazy">
+            </div>
+
+            <!-- Right: Content -->
+            <div class="hero-content">
+                <h1 class="hero-title">Overcome Stage Fear.<br>Speak with Confidence.</h1>
+                <p class="hero-subtitle">Practice daily with AI-powered feedback and improve your communication skills.</p>
+
+                <!-- Topic of the Day Card -->
+                <div class="topic-card">
+                    <div class="topic-header">Topic of the Day</div>
+                    <div class="topic-content" id="topicContent">
+                        Loading...
+                    </div>
+                </div>
+
+                <!-- CTA Button -->
+                <button class="cta-button" onclick="navigateTo('/session')">Start Practicing</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section class="about">
+        <div class="about-container">
+            <h2 class="about-title">About StageFear Breaker</h2>
+            <p class="about-text">
+                StageFear Breaker is your personal public speaking coach. Whether you're nervous about presentations, 
+                meetings, or social interactions, our platform helps you practice speaking in a judgment-free environment. 
+                Get instant AI-powered feedback, build confidence through daily practice, and track your progress as you 
+                become a more articulate and confident communicator. Your voice matters—let's help you share it with the world.
+            </p>
+        </div>
+    </section>
+
+    <!-- QUOTE SECTION -->
+    <section class="quote-section">
+        <div class="quote-container">
+            <blockquote class="quote-text" id="quoteText">
+                "Your voice matters."
+            </blockquote>
+            <p class="quote-refresh" onclick="loadNewQuote()">← Get inspired →</p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>&copy; 2025 StageFear Breaker. Overcome fear, speak with confidence.</p>
+    </footer>
+
+    <script src="/static/js/home.js"></script>
+</body>
+</html>

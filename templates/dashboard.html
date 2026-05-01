@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — StageFear Breaker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/main.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-brand">
+    <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="24" fill="var(--accent)"/>
+      <circle cx="24" cy="21" r="6" fill="white"/>
+      <path d="M14 34c0-5.5 4.5-8 10-8s10 2.5 10 8" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    </svg>
+    <a href="/home" class="nav-brand-link">StageFear Breaker</a>
+  </div>
+  <div class="nav-actions">
+    <button class="btn-ghost" id="theme-toggle" onclick="toggleTheme()">
+      <svg id="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="icon-sun" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+    </button>
+    <button class="btn-ghost" onclick="window.location.href='/home'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 7v5l3 2"/></svg>
+      Home
+    </button>
+    <button class="btn-primary sm" onclick="window.location.href='/session'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
+      Practice
+    </button>
+    <button class="btn-ghost" onclick="logout()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+    </button>
+  </div>
+</nav>
+
+<main class="dashboard-main">
+  <!-- HEADER -->
+  <div class="dash-header">
+    <div>
+      <p class="dash-greeting" id="greeting">Good morning,</p>
+      <h1 class="dash-title" id="username-display">Loading...</h1>
+    </div>
+    <div class="topic-of-day-badge" id="topic-of-day">
+      <div class="tod-label">📅 Topic of the Day</div>
+      <div class="tod-text" id="tod-text">Loading...</div>
+    </div>
+  </div>
+
+  <!-- STATS GRID -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🎤</div>
+      <div class="stat-value" id="stat-total">—</div>
+      <div class="stat-name">Sessions</div>
+    </div>
+    <div class="stat-card accent">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-value" id="stat-avg">—</div>
+      <div class="stat-name">Avg Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🚀</div>
+      <div class="stat-value" id="stat-best">—</div>
+      <div class="stat-name">Best Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">💬</div>
+      <div class="stat-value" id="stat-wpm">—</div>
+      <div class="stat-name">Avg WPM</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT GRID (3 COLUMNS) -->
+  <div class="dash-grid-three">
+    <!-- CHART -->
+    <div class="dash-card">
+      <div class="card-header">
+        <h3>Score Progress</h3>
+      </div>
+      <div class="chart-container">
+        <canvas id="progress-chart"></canvas>
+      </div>
+      <div id="empty-chart" class="empty-state hidden">
+        <p>Complete sessions to see your progress</p>
+      </div>
+    </div>
+
+    <!-- WEAKNESSES -->
+    <div class="dash-card">
+      <div class="card-header">
+        <h3>Areas to Improve</h3>
+      </div>
+      <div id="weaknesses-list">
+        <div class="skeleton-list">
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="dash-card">
+      <div class="card-header">
+        <h3>By Category</h3>
+      </div>
+      <div id="category-bars">
+        <div class="skeleton-list">
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECENT SESSIONS -->
+  <div class="dash-card sessions-card">
+    <div class="card-header">
+      <h3>Recent Sessions</h3>
+      <button class="btn-ghost sm" onclick="window.location.href='/session'">
+        + Practice Now
+      </button>
+    </div>
+    <div id="sessions-list">
+      <div class="skeleton-list">
+        <div class="skeleton-item tall"></div>
+        <div class="skeleton-item tall"></div>
+        <div class="skeleton-item tall"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/static/js/dashboard.js"></script>
+</body>
+</html>
