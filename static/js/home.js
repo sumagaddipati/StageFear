@@ -1,11 +1,8 @@
 // ============================================
-// AUTHENTICATION CHECK
+// NO AUTHENTICATION REQUIRED
 // ============================================
 
-const token = localStorage.getItem('sf_token');
-if (!token) {
-  window.location.href = '/';
-}
+// All users can access this page directly
 
 // ============================================
 // 30 MOTIVATIONAL QUOTES
@@ -136,9 +133,8 @@ function navigateTo(path) {
  * Logout user
  */
 function logout() {
-    localStorage.removeItem('sf_token');
-    localStorage.removeItem('sf_username');
-    window.location.href = '/';
+  // No authentication to clear - just redirect home
+  window.location.href = '/home';
 }
 
 // ============================================

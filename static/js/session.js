@@ -1,9 +1,9 @@
 /* session.js — Full practice session controller */
 
 const API = '';
-const token = localStorage.getItem('sf_token');
-if (!token) window.location.href = '/';
-const AUTH = { 'Authorization': 'Bearer ' + token };
+
+// No authentication required - app is fully public
+const AUTH = {};
 
 // Apply theme
 const savedTheme = localStorage.getItem('sf_theme') || 'dark';
@@ -79,7 +79,7 @@ async function generateTopic() {
   try {
     const res = await fetch(API + '/api/topics/generate', {
       method: 'POST',
-      headers: { ...AUTH, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         category: state.category,
         difficulty: state.difficulty,
@@ -99,7 +99,7 @@ async function generateTopic() {
 
 async function surpriseTopic() {
   try {
-    const res = await fetch(API + '/api/topics/surprise', { headers: AUTH });
+    const res = await fetch(API + '/api/topics/surprise');
     const data = await res.json();
     // Update chips to match
     selectChipByValue('category', data.category);
@@ -376,7 +376,6 @@ async function analyzeRecording() {
 
     const res = await fetch(API + '/api/sessions/analyze', {
       method: 'POST',
-      headers: AUTH,
       body: formData,
     });
     const data = await res.json();

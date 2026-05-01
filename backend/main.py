@@ -1,14 +1,11 @@
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 
-import jwt
-import bcrypt
 import json
 import random
 import re
@@ -25,7 +22,39 @@ from backend.analysis import analyze_speech
 # Get the project root directory
 PROJECT_ROOT = Path(__file__).parent.parent
 
+# ── DUMMY USER CONFIGURATION ────────────────────────────────────
+# All sessions are associated with this default user ID
+DUMMY_USER_ID = 1
+
 Base.metadata.create_all(bind=engine)
+
+# ── Initialize dummy user on startup ────────────────────────────
+def init_dummy_user():
+    """Ensure dummy user exists in database"""
+    db = SessionLocal()
+    try:
+        existing_user = db.query(models.User).filter(models.User.id == DUMMY_USER_ID).first()
+        if not existing_user:
+            dummy_user = models.User(
+                id=DUMMY_USER_ID,
+                username="default_user",
+                email="user@stagefear.local",
+                hashed_password="not_applicable"
+            )
+            db.add(dummy_user)
+            db.commit()
+            print(f"✓ Dummy user (ID={DUMMY_USER_ID}) created successfully")
+        else:
+            print(f"✓ Dummy user (ID={DUMMY_USER_ID}) already exists")
+    except Exception as e:
+        print(f"⚠ Warning initializing dummy user: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
+init_dummy_user()
+
+init_dummy_user()
 
 app = FastAPI(title="StageFear Breaker API")
 
@@ -37,16 +66,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-SECRET_KEY = "stagefear_secret_key_2024_xK9mP3"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-
 # Mount static files
 static_path = PROJECT_ROOT / "static"
 app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
-
 
 def get_db():
     db = SessionLocal()
@@ -56,36 +78,16 @@ def get_db():
         db.close()
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-    except jwt.PyJWTError:
-        raise credentials_exception
-    user = db.query(models.User).filter(models.User.username == username).first()
-    if user is None:
-        raise credentials_exception
-    return user
-
-
 # ── Serve frontend ──────────────────────────────────────────────
 @app.get("/", response_class=HTMLResponse)
 async def serve_index():
     with open(PROJECT_ROOT / "templates/index.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
+@app.get("/home", response_class=HTMLResponse)
+async def serve_home():
+    with open(PROJECT_ROOT / "templates/home.html", "r", encoding="utf-8") as f:
         return f.read()
 
 
@@ -101,45 +103,9 @@ async def serve_session():
         return f.read()
 
 
-@app.get("/home", response_class=HTMLResponse)
-async def serve_home():
-    with open(PROJECT_ROOT / "templates/home.html", "r", encoding="utf-8") as f:
-        return f.read()
-
-
-# ── Auth ────────────────────────────────────────────────────────
-@app.post("/api/auth/signup", response_model=schemas.Token)
-def signup(user_in: schemas.UserCreate, db: Session = Depends(get_db)):
-    if db.query(models.User).filter(models.User.username == user_in.username).first():
-        raise HTTPException(status_code=400, detail="Username already taken")
-    if db.query(models.User).filter(models.User.email == user_in.email).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
-    hashed = bcrypt.hashpw(user_in.password.encode(), bcrypt.gensalt()).decode()
-    user = models.User(username=user_in.username, email=user_in.email, hashed_password=hashed)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    token = create_access_token({"sub": user.username}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    return {"access_token": token, "token_type": "bearer", "username": user.username}
-
-
-@app.post("/api/auth/login", response_model=schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.username == form_data.username).first()
-    if not user or not bcrypt.checkpw(form_data.password.encode(), user.hashed_password.encode()):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
-    token = create_access_token({"sub": user.username}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    return {"access_token": token, "token_type": "bearer", "username": user.username}
-
-
-@app.get("/api/auth/me", response_model=schemas.UserOut)
-def me(current_user: models.User = Depends(get_current_user)):
-    return current_user
-
-
 # ── Topics ──────────────────────────────────────────────────────
 @app.post("/api/topics/generate")
-def generate_topic(req: schemas.TopicRequest, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+def generate_topic(req: schemas.TopicRequest, db: Session = Depends(get_db)):
     used_ids = req.used_topic_ids or []
     topic = get_topic(req.category, req.difficulty, used_ids)
     return topic
@@ -151,7 +117,7 @@ def topic_of_day():
 
 
 @app.get("/api/topics/surprise")
-def surprise_topic(current_user: models.User = Depends(get_current_user)):
+def surprise_topic():
     cats = ["Tech", "Lifestyle", "Interview", "Fun", "Abstract"]
     diffs = ["Easy", "Medium", "Hard"]
     return get_topic(random.choice(cats), random.choice(diffs), [])
@@ -165,14 +131,13 @@ async def analyze_session(
     category: str = Form(...),
     difficulty: str = Form(...),
     duration: float = Form(...),
-    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     audio_bytes = await audio.read()
     result = analyze_speech(audio_bytes, duration, topic)
 
     session = models.Session(
-        user_id=current_user.id,
+        user_id=DUMMY_USER_ID,
         topic=topic,
         category=category,
         difficulty=difficulty,
@@ -197,12 +162,11 @@ async def analyze_session(
 @app.get("/api/sessions")
 def get_sessions(
     limit: int = 10,
-    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     sessions = (
         db.query(models.Session)
-        .filter(models.Session.user_id == current_user.id)
+        .filter(models.Session.user_id == DUMMY_USER_ID)
         .order_by(models.Session.created_at.desc())
         .limit(limit)
         .all()
@@ -213,12 +177,11 @@ def get_sessions(
 @app.get("/api/sessions/{session_id}")
 def get_session(
     session_id: int,
-    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     session = db.query(models.Session).filter(
         models.Session.id == session_id,
-        models.Session.user_id == current_user.id
+        models.Session.user_id == DUMMY_USER_ID
     ).first()
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
@@ -226,8 +189,8 @@ def get_session(
 
 
 @app.get("/api/stats")
-def get_stats(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
-    sessions = db.query(models.Session).filter(models.Session.user_id == current_user.id).all()
+def get_stats(db: Session = Depends(get_db)):
+    sessions = db.query(models.Session).filter(models.Session.user_id == DUMMY_USER_ID).all()
     if not sessions:
         return {"total": 0, "avg_score": 0, "avg_wpm": 0, "best_score": 0, "sessions_by_day": [], "score_trend": []}
 

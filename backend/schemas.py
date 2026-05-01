@@ -4,28 +4,6 @@ from datetime import datetime
 import json
 
 
-class UserCreate(BaseModel):
-    username: str
-    email: str
-    password: str
-
-
-class UserOut(BaseModel):
-    id: int
-    username: str
-    email: str
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-    username: str
-
-
 class TopicRequest(BaseModel):
     category: str
     difficulty: str
@@ -48,6 +26,9 @@ class SessionOut(BaseModel):
     feedback: Any
     duration: float
     created_at: datetime
+
+    class Config:
+        from_attributes = True
 
     class Config:
         from_attributes = True

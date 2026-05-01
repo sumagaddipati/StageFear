@@ -1,10 +1,9 @@
 /* dashboard.js */
 
 const API = '';
-const token = localStorage.getItem('sf_token');
-if (!token) window.location.href = '/';
 
-const headers = { 'Authorization': 'Bearer ' + token };
+// No authentication required - app is fully public
+const headers = {};
 
 // Apply theme
 const savedTheme = localStorage.getItem('sf_theme') || 'dark';
@@ -26,9 +25,8 @@ function toggleTheme() {
 }
 
 function logout() {
-  localStorage.removeItem('sf_token');
-  localStorage.removeItem('sf_username');
-  window.location.href = '/';
+  // No authentication to clear - just redirect home
+  window.location.href = '/home';
 }
 
 function greeting() {
@@ -53,8 +51,8 @@ async function init() {
 
   // Load stats and sessions in parallel
   const [statsRes, sessionsRes] = await Promise.all([
-    fetch(API + '/api/stats', { headers }),
-    fetch(API + '/api/sessions?limit=10', { headers }),
+    fetch(API + '/api/stats'),
+    fetch(API + '/api/sessions?limit=10'),
   ]);
 
   if (!statsRes.ok || !sessionsRes.ok) {
