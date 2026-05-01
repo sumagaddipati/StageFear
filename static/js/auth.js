@@ -1,4 +1,4 @@
-/* auth.js — Login / Signup logic (FIXED VERSION) */
+/* auth.js — FINAL FIXED VERSION */
 
 const API = '';
 
@@ -17,15 +17,17 @@ document.getElementById(tab + '-form').classList.add('active');
 // ---------------- LOGIN ----------------
 async function handleLogin(e) {
 e.preventDefault();
+
 const btn = document.getElementById('login-btn');
 const errEl = document.getElementById('login-error');
+
 errEl.classList.add('hidden');
 
 const username = document.getElementById('login-username').value.trim();
 const password = document.getElementById('login-password').value;
 
 btn.disabled = true;
-btn.querySelector('span').textContent = 'Signing in...';
+btn.textContent = 'Signing in...';
 
 try {
 const formData = new FormData();
@@ -51,22 +53,29 @@ if (!res.ok) throw new Error(data.detail || 'Login failed');
 
 localStorage.setItem('sf_token', data.access_token);
 localStorage.setItem('sf_username', data.username);
+
 window.location.href = '/home';
 ```
 
 } catch (err) {
 errEl.textContent = err.message;
 errEl.classList.remove('hidden');
+
+```
 btn.disabled = false;
-btn.querySelector('span').textContent = 'Sign In';
+btn.textContent = 'Sign In';
+```
+
 }
 }
 
 // ---------------- SIGNUP ----------------
 async function handleSignup(e) {
 e.preventDefault();
+
 const btn = document.getElementById('signup-btn');
 const errEl = document.getElementById('signup-error');
+
 errEl.classList.add('hidden');
 
 const payload = {
@@ -82,7 +91,7 @@ return;
 }
 
 btn.disabled = true;
-btn.querySelector('span').textContent = 'Creating account...';
+btn.textContent = 'Creating account...';
 
 try {
 const res = await fetch(API + '/api/auth/signup', {
@@ -105,19 +114,24 @@ if (!res.ok) throw new Error(data.detail || 'Signup failed');
 
 localStorage.setItem('sf_token', data.access_token);
 localStorage.setItem('sf_username', data.username);
+
 window.location.href = '/home';
 ```
 
 } catch (err) {
 errEl.textContent = err.message;
 errEl.classList.remove('hidden');
+
+```
 btn.disabled = false;
-btn.querySelector('span').textContent = 'Create Account';
+btn.textContent = 'Create Account';
+```
+
 }
 }
 
 // ---------------- PASSWORD TOGGLE ----------------
-function togglePw(id, btn) {
+function togglePw(id) {
 const input = document.getElementById(id);
 input.type = input.type === 'password' ? 'text' : 'password';
 }
