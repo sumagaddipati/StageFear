@@ -1,6 +1,7 @@
 import re
 import random
 import math
+import io
 
 FILLER_WORDS = [
     "um", "uh", "like", "you know", "basically", "literally", "actually",
@@ -29,13 +30,17 @@ def transcribe_audio(audio_bytes: bytes) -> str:
     """
     try:
         import speech_recognition as sr
+        from pydub import AudioSegment
         recognizer = sr.Recognizer()
         import tempfile, os
+        # Convert WebM bytes to WAV
+        audio_segment = AudioSegment.from_file(io.BytesIO(audio_bytes), format="webm")
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-            f.write(audio_bytes)
+            audio_segment.export(f.name, format="wav")
             tmp_path = f.name
         try:
             with sr.AudioFile(tmp_path) as source:
+                recognizer.adjust_for_ambient_noise(source)
                 audio_data = recognizer.record(source)
             text = recognizer.recognize_google(audio_data)
             return text
